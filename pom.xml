@@ -33,7 +33,7 @@
 				<enabled>false</enabled>
 			</releases>
 			<name>Cytoscape Snapshots</name>
-			<url>http://code.cytoscape.org/nexus/content/repositories/snapshots/</url>
+			<url>http://nrnb-nexus.ucsd.edu/repository/cytoscape_snapshots/</url>
 		</repository>
 		<repository>
 			<id>cytoscape_releases</id>
@@ -44,7 +44,7 @@
 				<enabled>true</enabled>
 			</releases>
 			<name>Cytoscape Releases</name>
-			<url>http://code.cytoscape.org/nexus/content/repositories/releases/</url>
+			<url>http://nrnb-nexus.ucsd.edu/repository/cytoscape_releases/</url>
 		</repository>
 	</repositories>
 
@@ -75,6 +75,7 @@
 							</artifactItems>
 						</configuration>
 					</execution>
+<!--
 					<execution>
 						<id>unpack-javadoc</id>
 						<phase>process-sources</phase>
@@ -95,6 +96,7 @@
 							</artifactItems>
 						</configuration>
 					</execution>
+				-->
 					<execution>
 						<id>copy</id>
 						<phase>process-sources</phase>
@@ -211,12 +213,14 @@
 	</build>
 
 	<dependencies>
+		<!--
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>swing-app-api</artifactId>
 			<version>${cytoscape.api.version}</version>
 			<classifier>javadoc</classifier>
 		</dependency>
+-->
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>swing-app-api</artifactId>
