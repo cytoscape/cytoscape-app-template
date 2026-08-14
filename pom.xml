@@ -17,6 +17,16 @@
 		<cytoscape.api.version>3.11.0-SNAPSHOT</cytoscape.api.version>
 		<cytoscape.impl.version>3.11.0-SNAPSHOT</cytoscape.impl.version>
 		<cytoscape.distribution.version>3.11.0-SNAPSHOT</cytoscape.distribution.version>
+
+		<!--
+			Defaults for the non-Windows distribution.  These must live here rather
+			than only in the 'unix' profile: naming any profile on the command line
+			(for example -Psources) deactivates every activeByDefault profile in
+			this POM, which would otherwise leave them unset.  The 'windows'
+			profile overrides them.
+		-->
+		<distribution.type>tar.gz</distribution.type>
+		<distribution.suffix>unix</distribution.suffix>
 	</properties>
 
 	<name>Distribution</name>
@@ -114,22 +124,6 @@
 									<classifier>jar-with-dependencies</classifier>
 									<overWrite>true</overWrite>
 									<destFileName>cytoscape-swing-app-api-${cytoscape.api.version}.jar</destFileName>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.cytoscape</groupId>
-									<artifactId>api-parent</artifactId>
-									<version>${cytoscape.api.version}</version>
-									<classifier>sources</classifier>
-									<overWrite>true</overWrite>
-									<destFileName>api-${cytoscape.api.version}-sources.jar</destFileName>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.cytoscape</groupId>
-									<artifactId>impl-parent</artifactId>
-									<version>${cytoscape.impl.version}</version>
-									<classifier>sources</classifier>
-									<overWrite>true</overWrite>
-									<destFileName>impl-${cytoscape.api.version}-sources.jar</destFileName>
 								</artifactItem>
 							</artifactItems>
 						</configuration>
@@ -230,10 +224,67 @@
 	</dependencies>
 
 	<profiles>
+		<!--
+			Copies the aggregated api/impl sources JARs into the distribution, so
+			app developers can attach Cytoscape sources in their IDE.
+
+			These two JARs are produced by the matching 'sources' profile in
+			api/pom.xml and impl/pom.xml, which is not part of the default build
+			(see cytoscape/cytoscape#35).  Both halves must be activated together,
+			as a second pass once a normal build has populated ~/.m2:
+
+			    mvn clean install -DskipTests
+			    mvn install -Psources -DskipTests
+		-->
+		<profile>
+			<id>sources</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<version>3.1.1</version>
+						<executions>
+							<execution>
+								<id>copy-sources</id>
+								<phase>process-sources</phase>
+								<goals>
+									<goal>copy</goal>
+								</goals>
+								<configuration>
+									<excludeTransitive>true</excludeTransitive>
+									<outputDirectory>${project.build.directory}/lib</outputDirectory>
+									<artifactItems>
+										<artifactItem>
+											<groupId>org.cytoscape</groupId>
+											<artifactId>api-parent</artifactId>
+											<version>${cytoscape.api.version}</version>
+											<classifier>sources</classifier>
+											<overWrite>true</overWrite>
+											<destFileName>api-${cytoscape.api.version}-sources.jar</destFileName>
+										</artifactItem>
+										<artifactItem>
+											<groupId>org.cytoscape</groupId>
+											<artifactId>impl-parent</artifactId>
+											<version>${cytoscape.impl.version}</version>
+											<classifier>sources</classifier>
+											<overWrite>true</overWrite>
+											<destFileName>impl-${cytoscape.api.version}-sources.jar</destFileName>
+										</artifactItem>
+									</artifactItems>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 		<profile>
 			<id>unix</id>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<os>
+					<family>unix</family>
+				</os>
 			</activation>
 			<properties>
 				<distribution.type>tar.gz</distribution.type>
